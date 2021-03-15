@@ -1,9 +1,7 @@
 #include <stdio.h>
-#include <conio.h>
 #include <stdlib.h>
 #include <locale.h>
 #include <time.h>
-
 struct treeNode {
 	struct treeNode *leftPtr;
 	char data;
@@ -17,6 +15,9 @@ void insertNode(TREENODEPTR1 *, int);
 void inOrder(TREENODEPTR1);				/*По возрастанию*/
 void preOrder(TREENODEPTR1);
 void postOrder(TREENODEPTR1);
+TREENODEPTR1 miN(TREENODEPTR1 pointer);
+void delete(TREENODEPTR1 treePtr, int  n);
+void obmen(TREENODEPTR1 treePtr, TREENODEPTR1 pointer);
 int height(TREENODEPTR1 treePtr, int max);
 
 int main()
@@ -41,9 +42,16 @@ insertNode(&rootPtr, item);
 	postOrder(rootPtr);
 
 	printf("\n Высота равна %d", height(rootPtr, 0));
-	getch();
+	int number;
+	printf("Введите элемент, который хотите удалить ");
+	scanf_s("%d", &number);
+	delete(&rootPtr, number);
+	inOrder(rootPtr);
+
 		return 0;
 }
+
+
 
 void insertNode(TREENODEPTR1 *treePtr, int value)
 {
@@ -115,3 +123,49 @@ int height(TREENODEPTR1 treePtr, int max)
 		max = max2;
 	return max;
 }
+
+
+void delete(TREENODEPTR1 *treePtr, int  n)
+{
+	if((*treePtr)->rightPtr != NULL && n>(*treePtr)->data)
+		if ((*treePtr)->rightPtr->data == n)
+		{
+			obmen(&(*treePtr), &(*treePtr)->rightPtr);
+		}
+		else
+			delete(&(*treePtr)->rightPtr, n);
+	else if ((*treePtr)->leftPtr != NULL)
+		if ((*treePtr)->leftPtr->data == n)
+		{
+			obmen(&(*treePtr), &(*treePtr)->leftPtr);
+		}
+		else
+			delete(&(*treePtr)->leftPtr, n);
+}
+
+void obmen(TREENODEPTR1 *treePtr, TREENODEPTR1 *pointer)
+{
+	TREENODEPTR1 temp;
+	if ((*pointer)->rightPtr != NULL)
+	{
+		if ((*pointer)->leftPtr != NULL) {
+			TREENODEPTR1 Ptr;
+			Ptr = miN((*pointer)->rightPtr);
+			Ptr->leftPtr = (*pointer)->leftPtr;
+		}
+		temp = *pointer;
+		*pointer = (*pointer)->rightPtr;
+		free(temp);
+	}
+	else if ((*pointer)->leftPtr != NULL)
+		treePtr = (*pointer)->leftPtr;
+}
+
+TREENODEPTR1 miN(TREENODEPTR1 pointer)
+{
+	if (pointer->leftPtr != NULL)
+		return miN(pointer->leftPtr);			
+	else
+		return pointer;
+}
+
