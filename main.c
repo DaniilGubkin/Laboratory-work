@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <locale.h>
 #include <time.h>
+
 struct treeNode {
 	struct treeNode *leftPtr;
 	char data;
@@ -43,8 +44,6 @@ insertNode(&rootPtr, item);
 	getch();
 		return 0;
 }
-
-
 
 void insertNode(TREENODEPTR1 *treePtr, int value)
 {
