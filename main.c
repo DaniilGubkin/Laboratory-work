@@ -169,3 +169,35 @@ TREENODEPTR1 miN(TREENODEPTR1 pointer)
 		return pointer;
 }
 
+void level_elems(TREENODEPTR treePtr, int level, int current){ //six func (input -- floor -- element) 
+    if (treePtr != NULL){
+        current++;
+        if (current == level){
+            printf("Elem value: %d\n",treePtr->data);
+            return;
+        }
+        else if (current < level){
+            level_elems(treePtr->rightPtr, level, current);
+            level_elems(treePtr->leftPtr, level, current);
+        }
+    }
+}
+
+int height(TREENODEPTR treePtr, int n) { // func 8 with 6
+    n++;
+    printf("Elem value: %d\n Floor: %d\n",treePtr->data, n); // CHEATING 6 func 
+    if ((treePtr->leftPtr == NULL) && (treePtr->rightPtr == NULL)) {
+        return n;
+    }
+    else if (treePtr->leftPtr == NULL) {
+        return height(treePtr->rightPtr, n);
+    }
+    else if (treePtr->rightPtr == NULL) {
+        return height(treePtr->leftPtr, n);
+    }
+    else {
+        int left = height(treePtr->leftPtr, n);
+        int right = height(treePtr->rightPtr, n);
+        return left > right ? left : right;
+    }
+
