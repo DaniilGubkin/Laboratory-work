@@ -98,8 +98,9 @@ int main() {
 		case 2:
 			for (int level = 1; level <= height(rootPtr, 0); level++)
 			{
-				printf("%d этаж: \n", level);
+				printf("%d этаж: ", level);
 				level_elems(rootPtr, level, 0);
+				printf("\n");
 			}
 			break;
 		case 3:
@@ -487,3 +488,4 @@ void instructions() {
 		"6. Удалить дерево\n"
 		"7. Завершение работы\n");
 }
+
