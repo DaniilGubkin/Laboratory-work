@@ -20,6 +20,7 @@ void postOrder(TREENODEPTR);
 void delete(TREENODEPTR* root, int key);
 TREENODEPTR minim(TREENODEPTR root);
 TREENODEPTR prevSearch(TREENODEPTR root, int key);
+TREENODEPTR search(TREENODEPTR root, int key);
 
 int main()
 {
@@ -28,12 +29,13 @@ int main()
 	setlocale(LC_ALL, "Russian");
 	srand(time(NULL));
 	printf("The numbers being placed in the tree are: \n");
+
 	for (i = 1; i <= 10; i++) {
 		item = rand() % 20;
 		printf("%d  ", item);				  /*Рандомим 10 числе и заталкиваем их в ввод иерархией дерева*/
 		insertNode(&rootPtr, item);
 	}
-	
+
 	printf("\n\nThe preOrder traversal is: \n");
 	preOrder(rootPtr);
 
@@ -49,6 +51,11 @@ int main()
 	printf("\n\nEnter the element which you want to delete: ");
 	scanf_s("%d", &number);
 	delete(&rootPtr, number);
+	inOrder(rootPtr);
+
+	printf("\n\nDeleting  clones....\n\n");
+	doubleDelete(&rootPtr);
+	printf("\n\nThe inOrder traversal is: \n");
 	inOrder(rootPtr);
 
 	printf("\n\n");
@@ -69,15 +76,13 @@ void insertNode(TREENODEPTR* treePtr, int value)
 		else
 			printf("%d not inserted. No memore available.\n", value); /*Защита от утечки памяти*/
 	}
-	else
-		if (value < (*treePtr)->data)
+	else if (value <= (*treePtr)->data)
 			insertNode(&((*treePtr)->leftPtr), value);		/*Обход влево и снова пытаемся найти нужное место*/
-		else
-			if (value > (*treePtr)->data)
+	else if (value > (*treePtr)->data)
 				insertNode(&((*treePtr)->rightPtr), value);   /*Обход вправа и снова пытаемся найти нужное место*/
 
-			else
-				printf("dup  ");									/*На случай повторения элементов*/
+			//else
+			//	printf("dup  ");									/*На случай повторения элементов*/
 
 }
 
@@ -148,12 +153,30 @@ TREENODEPTR prevSearch(TREENODEPTR root, int key)
 	}
 
 	//находим элемент, у которого потом нам подходит
-	if (root->leftPtr->data == key || root->rightPtr->data == key) return root;
+	if (root->leftPtr != NULL && root->leftPtr->data == key)
+	return root;
+
+	if (root->rightPtr != NULL && root->rightPtr->data == key)
+	return root;
+
 
 	// Поиск нужного узла
 	if (key < root->data) prevSearch(root->leftPtr, key);
 	else prevSearch(root->rightPtr, key);
 }
+
+//поиск нужного эл-та
+TREENODEPTR search(TREENODEPTR root, int key)
+{
+	// Если дерево пусто или ключ корня равен искомому ключу, то возвращается указатель на корень
+	if ((root == NULL) || (root->data = key))
+		return root;
+	// Поиск нужного узла
+	if (key < root->data)
+		return search(root->leftPtr, key);
+	else return search(root->rightPtr, key);
+}
+
 
 //удаление
 void delete(TREENODEPTR* root, int key)
@@ -165,15 +188,16 @@ void delete(TREENODEPTR* root, int key)
 		printf("\nДерево уже пустое, удалять нечего!\n");
 		return;
 	}
+
 	else
 	{
-		TREENODEPTR current = NULL, temp = NULL;
+		TREENODEPTR current = NULL, temp = NULL, m = NULL;
 
 		//если удаляемый нами эл-т - корень
-		if ((*root)->data == key) 
+		if ((*root)->data == key)
 		{
 			//если дерево только из корня
-			if ((*root)->leftPtr == NULL && (*root)->rightPtr == NULL) 
+			if ((*root)->leftPtr == NULL && (*root)->rightPtr == NULL)
 			{
 				*root = NULL;
 				printf("\nДерево теперь пустое!\n");
@@ -191,18 +215,18 @@ void delete(TREENODEPTR* root, int key)
 				free(temp);
 				return;
 			}
-			 
+
 			//если всё дерево уходит вправо
-			else if ((*root)->leftPtr == NULL) 
+			else if ((*root)->leftPtr == NULL)
 			{
-				temp = (*root); 
+				temp = (*root);
 				(*root) = (*root)->rightPtr; //то прикреплять нечего, просто смещаем корень вправо
 				free(temp);
 				return;
 			}
 
 			//если всё дерево уходит влево
-			else if ((*root)->rightPtr == NULL) 
+			else if ((*root)->rightPtr == NULL)
 			{
 				temp = (*root);
 				(*root) = (*root)->leftPtr; //то прикреплять нечего, просто смещаем корень влево
@@ -215,8 +239,7 @@ void delete(TREENODEPTR* root, int key)
 
 
 		// если удаляемый элемент - лист
-		TREENODEPTR l = NULL, m = NULL; //m-предок l-удаляемый элемент
-
+		TREENODEPTR l = NULL; //m-предок l-удаляемый элемент
 		int flag; //будет 1, если l - это левый потомок и 0, если l- это правый потомок, нужно для 3 случая
 
 		m = prevSearch(*root, key); //находим предка удаляемого эл-та
@@ -227,13 +250,14 @@ void delete(TREENODEPTR* root, int key)
 			return;
 		}
 
-		if (m->leftPtr->data == key)//нашли удаляемый элемент, поставили флаг
+
+		if (m->leftPtr!=NULL && m->leftPtr->data == key)//нашли удаляемый элемент, поставили флаг
 		{
 			l = m->leftPtr;
 			flag = 1;
 		}
 
-		else
+		if (m->rightPtr != NULL && m->rightPtr->data == key)//нашли удаляемый элемент, поставили флаг
 		{
 			l = m->rightPtr;
 			flag = 0;
@@ -289,5 +313,27 @@ void level_elems(TREENODEPTR treePtr, int level, int current) { //six func (inpu
 			level_elems(treePtr->rightPtr, level, current);
 			level_elems(treePtr->leftPtr, level, current);
 		}
+	}
+}
+
+void doubleDelete(TREENODEPTR* current)
+{
+	TREENODEPTR temp = NULL;
+
+	while ((*current)->leftPtr != NULL && (*current)->data == (*current)->leftPtr->data) //если значение в обрабатываемом равно значению в левом потомке
+	{
+		temp = (*current)->leftPtr; //сохраняем потомка для чистки
+		(*current)->leftPtr = (*current)->leftPtr->leftPtr; //смещаем связь
+		free(temp); //чистим 
+	}
+
+	if ((*current)->leftPtr != NULL)
+	{
+		doubleDelete(&((*current)->leftPtr));
+	}
+
+	if ((*current)->rightPtr != NULL)
+	{
+		doubleDelete(&((*current)->rightPtr));
 	}
 }
